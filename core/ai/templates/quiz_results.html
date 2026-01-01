@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}My Quiz Results{% endblock %}
+
+{% block content %}
+  <h1 class="h4 mb-3">My Quiz Results</h1>
+
+  {% if results %}
+    <div class="list-group">
+      {% for r in results %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ r.quiz.title }}</strong>
+            <div class="small text-muted">Taken: {{ r.taken_at }}</div>
+          </div>
+          <div>
+            <span class="badge bg-primary">{{ r.score }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">No quiz results yet.</div>
+  {% endif %}
+
+{% endblock %}

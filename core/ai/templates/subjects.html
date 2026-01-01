@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Subjects — AI Learning{% endblock %}
+
+{% block content %}
+    <h2 class="mb-4">Subjects</h2>
+    <div class="row g-3">
+        {% for subject in subjects %}
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="https://via.placeholder.com/400x160.png?text={{ subject.name|urlencode }}" class="card-img-top" alt="{{ subject.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ subject.name }}</h5>
+                        <a href="{% url 'topic_list' subject.id %}" class="btn btn-primary">View Topics</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">No subjects available</div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quiz.title }} — Quiz{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">{{ quiz.title }}</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'topic_list' quiz.topic.subject.id %}">Back</a>
+  </div>
+
+  {% if questions %}
+    <form method="post">
+      {% csrf_token %}
+      {% for item in questions %}
+        <div class="card mb-3">
+          <div class="card-body">
+            <p class="mb-2"><strong>Q{{ forloop.counter }}:</strong> {{ item.question.question_text }}</p>
+            <div class="list-group">
+              {% for c in item.choices %}
+                <label class="list-group-item">
+                  <input type="radio" name="q_{{ item.question.id }}" value="{{ c.id }}"> {{ c.text }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      <button class="btn btn-primary" type="submit">Submit Answers</button>
+    </form>
+  {% else %}
+    <div class="alert alert-warning">No questions available for this quiz.</div>
+  {% endif %}
+
+{% endblock %}
