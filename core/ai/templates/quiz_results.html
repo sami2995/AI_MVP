@@ -1,26 +1,178 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Quiz Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+            border-radius: 0 0 20px 20px;
+        }
+        .result-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        .score-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+        .score-excellent { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .score-good { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .score-average { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .score-poor { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body style="background-color: #f8f9fa;">
 
-{% block title %}My Quiz Results{% endblock %}
-
-{% block content %}
-  <h1 class="h4 mb-3">My Quiz Results</h1>
-
-  {% if results %}
-    <div class="list-group">
-      {% for r in results %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <strong>{{ r.quiz.title }}</strong>
-            <div class="small text-muted">Taken: {{ r.taken_at }}</div>
-          </div>
-          <div>
-            <span class="badge bg-primary">{{ r.score }}</span>
-          </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="{% url 'subject_list' %}">
+                <i class="bi bi-mortarboard-fill"></i> AI Learning
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{% url 'subject_list' %}">
+                    <i class="bi bi-house-door"></i> Home
+                </a>
+            </div>
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="alert alert-info">No quiz results yet.</div>
-  {% endif %}
+    </nav>
 
-{% endblock %}
+    <header class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-trophy-fill"></i> My Quiz Results
+            </h1>
+            <p class="lead">Track your learning progress and achievements</p>
+        </div>
+    </header>
+
+    <main class="container">
+        {% if results %}
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ results|length }}</div>
+                        <div class="text-muted">Total Quizzes</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number">
+                            {% if results %}
+                                {{ results|length|add:"-1"|add:"1"|floatformat:0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="text-muted">Completed</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number">
+                            {% if results %}
+                                {% widthratio results|length 1 1 %}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="text-muted">Average Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                {% for result in results %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card result-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="score-badge 
+                                        {% if result.score >= 80 %}score-excellent
+                                        {% elif result.score >= 60 %}score-good
+                                        {% elif result.score >= 40 %}score-average
+                                        {% else %}score-poor{% endif %}">
+                                        {{ result.score }}%
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-2 fw-bold">{{ result.quiz.title }}</h5>
+                                        <p class="card-text text-muted small mb-2">
+                                            <i class="bi bi-folder"></i> {{ result.quiz.topic.title }}
+                                        </p>
+                                        <p class="card-text text-muted small mb-0">
+                                            <i class="bi bi-clock"></i> Taken {{ result.taken_at|timesince }} ago
+                                        </p>
+                                    </div>
+                                    <div class="text-end">
+                                        {% if result.score >= 80 %}
+                                            <i class="bi bi-star-fill text-warning" style="font-size: 2rem;"></i>
+                                        {% elif result.score >= 60 %}
+                                            <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                                        {% else %}
+                                            <i class="bi bi-arrow-up-circle-fill text-primary" style="font-size: 2rem;"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card result-card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+                    <h4 class="mt-3 text-muted">No Quiz Results Yet</h4>
+                    <p class="text-muted">Start taking quizzes to see your results here!</p>
+                    <a href="{% url 'subject_list' %}" class="btn btn-primary mt-3">
+                        <i class="bi bi-arrow-left"></i> Browse Subjects
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 AI Learning Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

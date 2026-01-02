@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quizzes Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Quizzes</h3>
+        <button class="btn btn-primary" onclick="openQuizModal()">
+            Add Quiz
+        </button>
+    </div>
+
+    <!-- Quizzes Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-bordered mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Topic</th>
+                        <th width="180">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Django loop -->
+                   {% for quiz in quizzes %} 
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{quiz.title}}</td>
+                        <td>{{quiz.topic}}</td>
+                        <td>
+                            <a href="{% url 'quiz_edit_url' quiz.id %}" class="btn btn-sm btn-warning">
+                                Edit
+                            </a>
+
+                            <button type="button" class="btn btn-sm btn-danger" onclick="openQuizDeleteModal('{% url 'delete_quiz_url' quiz.id %}', '{{ quiz.title }}')">Delete</button>
+                        </td>
+                    </tr>
+                   {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ADD / EDIT QUIZ MODAL -->
+<div class="modal fade" id="quizModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Quiz Form</h5>
+                <button type="button" class="btn-close" onclick="closeQuizModal()"></button>
+            </div>
+
+            <form method="post" action="" enctype="multipart/form-data">
+               {% csrf_token %} 
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Topic</label>
+                        <select name="topic" class="form-select" required>
+                         {% for top in topics %}
+                            <option value="{{top.id}}">{{top.title}}</option>
+                        
+                   {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeQuizModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        Save Quiz
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Minimal Modal Control -->
+<script>
+    let quizModal;
+
+    function openQuizModal() {
+        quizModal = new bootstrap.Modal(
+            document.getElementById('quizModal')
+        );
+        quizModal.show();
+    }
+
+    function closeQuizModal() {
+        if (quizModal) {
+            quizModal.hide();
+        }
+    }
+</script>
+
+<!-- Delete confirmation modal for quizzes -->
+<div class="modal fade" id="confirmDeleteModalQuiz" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmDeleteMessageQuiz">Are you sure you want to delete this quiz?</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" id="deleteFormQuiz">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        function openQuizDeleteModal(actionUrl, title) {
+                const form = document.getElementById('deleteFormQuiz');
+                form.action = actionUrl;
+                const msg = document.getElementById('confirmDeleteMessageQuiz');
+                msg.textContent = `Delete quiz "${title}"? This will hide the quiz.`;
+                const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModalQuiz'));
+                modal.show();
+        }
+</script>
+
+</body>
+</html>
+

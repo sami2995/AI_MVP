@@ -1,22 +1,188 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects — AI Learning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 50px;
+        }
+        .subject-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 100%;
+        }
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .subject-card img {
+            height: 220px;
+            object-fit: cover;
+            width: 100%;
+        }
+        .subject-card .card-body {
+            padding: 1.5rem;
+        }
+        .subject-card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #212529;
+        }
+        .subject-card .card-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .subject-card .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
 
-{% block title %}Subjects — AI Learning{% endblock %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="{% url 'subject_list' %}">AI Learning Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'subject_list' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'quiz_results' %}">My Results</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/subjects/">Manage</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-{% block content %}
-    <h2 class="mb-4">Subjects</h2>
-    <div class="row g-3">
-        {% for subject in subjects %}
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://via.placeholder.com/400x160.png?text={{ subject.name|urlencode }}" class="card-img-top" alt="{{ subject.name }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ subject.name }}</h5>
-                        <a href="{% url 'topic_list' subject.id %}" class="btn btn-primary">View Topics</a>
+    <header class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">Explore Learning Subjects</h1>
+            <p class="lead">Discover a wide range of topics and materials to enhance your knowledge</p>
+        </div>
+    </header>
+
+    <main class="container">
+        {% if subjects %}
+            <!-- Statistics Section -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow-sm text-center p-4">
+                        <div style="font-size: 2.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+                            {{ stats.total_subjects }}
+                        </div>
+                        <div class="text-muted mt-2">Subjects</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow-sm text-center p-4">
+                        <div style="font-size: 2.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+                            {{ stats.total_topics }}
+                        </div>
+                        <div class="text-muted mt-2">Topics</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow-sm text-center p-4">
+                        <div style="font-size: 2.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+                            {{ stats.total_materials }}
+                        </div>
+                        <div class="text-muted mt-2">Materials</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="card border-0 shadow-sm text-center p-4">
+                        <div style="font-size: 2.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+                            {{ stats.total_quizzes }}
+                        </div>
+                        <div class="text-muted mt-2">Quizzes</div>
                     </div>
                 </div>
             </div>
-        {% empty %}
-            <div class="col-12">No subjects available</div>
-        {% endfor %}
-    </div>
-{% endblock %}
+
+            <h3 class="mb-4"><i class="bi bi-book"></i> Available Subjects</h3>
+            <div class="row g-4 mb-5">
+                {% for subject in subjects %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card subject-card shadow-sm">
+                            {% if subject.image %}
+                                <img src="{{ subject.image.url }}" class="card-img-top" alt="{{ subject.name }}">
+                            {% else %}
+                                <div style="height: 220px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-book" style="font-size: 4rem; color: white; opacity: 0.7;"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ subject.name }}</h5>
+                                {% if subject.description %}
+                                    <p class="card-text">{{ subject.description|truncatewords:20 }}</p>
+                                {% else %}
+                                    <p class="card-text">Explore topics and materials for {{ subject.name }}</p>
+                                {% endif %}
+                                <a href="{% url 'topic_list' subject.id %}" class="btn btn-primary">
+                                    View Topics <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h3>No Subjects Available</h3>
+                <p>Check back later or contact an administrator to add subjects.</p>
+            </div>
+        {% endif %}
+    </main>
+
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 AI Learning Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
